@@ -1,13 +1,16 @@
 #!/bin/bash
 
+# Include the required functions
 source lib/prompt.sh
 source lib/serverSide.sh
 source lib/clientSide.sh
 
+# Set the current and log path
 current_path=$(pwd)
 log_path="$current_path/lib/log"
 mkdir -p $log_path
 
+# Start of the installation
 message_start
 
 echo "Setting up easy-rsa..."
@@ -42,4 +45,5 @@ sudo bash -c "$(declare -f generate_ovpn); generate_ovpn $(whoami)"
 
 mv ~/client-configs/files/client1.ovpn ~/
 
+# End of installation
 message_end
