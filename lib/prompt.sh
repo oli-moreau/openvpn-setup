@@ -1,12 +1,15 @@
 #!/bin/bash
 
+# Center text to screen
 center_text() {
     spaces=$(((width - ${#1}) / 2))
     printf "%*s%s%*s\n" $spaces "" "${1}" $spaces
 }
 
+# Start of installation
 message_start() {
   width=$(tput cols)
+
   echo "$(printf '=%.0s' $(seq 1 $width))"
     center_text "OpenVPN installation"
     center_text "Make sure that the user have sudo privileges!"
@@ -14,8 +17,10 @@ message_start() {
   echo "$(printf '=%.0s' $(seq 1 $width))"
 }
 
+# End of installation
 message_end() {
   width=$(tput cols)
+  
   echo "$(printf '=%.0s' $(seq 1 $width))"
     center_text "OpenVPN installation complete"
     center_text "The client1.ovpn file is located in the ~/ folder"

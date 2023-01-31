@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# CA side of the server
+# Install and init easy-rsa
 easyrsa_setup() {
     sudo apt install -y easy-rsa
     mkdir ~/easy-rsa
@@ -9,6 +11,8 @@ easyrsa_setup() {
     ./easyrsa init-pki
 }
 
+# CA side of the server
+# Configure the vars file with the information that is provided by the user
 create_vars_file() {
     touch vars
     vars_content=("EASYRSA_REQ_COUNTRY" "EASYRSA_REQ_PROVINCE" "EASYRSA_REQ_CITY" "EASYRSA_REQ_ORG" "EASYRSA_REQ_EMAIL")
@@ -25,12 +29,15 @@ create_vars_file() {
     -e '$ a set_var EASYRSA_DIGEST         "sha512"' vars
 }
 
+# Install the requirements
+# Setup the working directories
 base_install() {
     sudo apt install -y openvpn ufw
     mkdir -p ~/client-configs/keys
     chmod -R 700 ~/client-configs
 }
 
+# Generate and sign every server and client certificates previously generated
 gen_sign() {
     echo -e "\n" | ./easyrsa build-ca nopass
     echo -e "\n" | ./easyrsa gen-req server nopass
@@ -38,6 +45,7 @@ gen_sign() {
     echo 'yes' | ./easyrsa sign-req server server
     sudo cp pki/issued/server.crt /etc/openvpn/
     sudo cp pki/ca.crt /etc/openvpn/
+
     ./easyrsa gen-dh
     sudo openvpn --genkey secret ta.key
     sudo cp ta.key /etc/openvpn/
@@ -45,31 +53,38 @@ gen_sign() {
     echo -e "\n" | ./easyrsa gen-req client1 nopass
     cp pki/private/client1.key ~/client-configs/keys/
     echo 'yes' | ./easyrsa sign-req client client1
+
     cp pki/issued/client1.crt ~/client-configs/keys/
     sudo cp ta.key ~/client-configs/keys/
     sudo cp /etc/openvpn/ca.crt ~/client-configs/keys/
 }
 
+# Configure the main openvpn configuration file
+# It specifies the types of protocol, port, dns and such
 server_config() {
     sudo cp /usr/share/doc/openvpn/examples/sample-config-files/server.conf /etc/openvpn/
+
     sudo sed -i -e '/cipher AES-256-CBC/a auth SHA256' \
-    -e 's/^;proto tcp$/proto tcp/' \
-    -e 's/^proto udp$/;proto udp/' \
-    -e 's/^port 1194$/port 443/' \
-    -e 's/^dh dh2048.pem$/dh dh.pem/' \
-    -e 's/^;user nobody$/user nobody/' \
-    -e 's/^;group nogroup$/group nogroup/' \
-    -e 's/^explicit-exit-notify 1$/explicit-exit-notify 0/' \
-    -e 's/^;push "redirect-gateway def1 bypass-dhcp"$/push "redirect-gateway def1 bypass-dhcp"/' \
-    -e 's/^;push "dhcp-option DNS 208.67.222.222"$/push "dhcp-option DNS 8.8.8.8"/' \
-    -e 's/^;push "dhcp-option DNS 208.67.220.220"$/push "dhcp-option DNS 8.8.4.4"/' /etc/openvpn/server.conf
+        -e 's/^;proto tcp$/proto tcp/' \
+        -e 's/^proto udp$/;proto udp/' \
+        -e 's/^port 1194$/port 443/' \
+        -e 's/^dh dh2048.pem$/dh dh.pem/' \
+        -e 's/^;user nobody$/user nobody/' \
+        -e 's/^;group nogroup$/group nogroup/' \
+        -e 's/^explicit-exit-notify 1$/explicit-exit-notify 0/' \
+        -e 's/^;push "redirect-gateway def1 bypass-dhcp"$/push "redirect-gateway def1 bypass-dhcp"/' \
+        -e 's/^;push "dhcp-option DNS 208.67.222.222"$/push "dhcp-option DNS 8.8.8.8"/' \
+        -e 's/^;push "dhcp-option DNS 208.67.220.220"$/push "dhcp-option DNS 8.8.4.4"/' /etc/openvpn/server.conf
 }
 
+# Enable IP forwarding
 ip_forwarding() {
     sudo sed -i 's/^#net.ipv4.ip_forward=1$/net.ipv4.ip_forward=1/' /etc/sysctl.conf
     sudo sysctl -p
 }
 
+# Configure the firewall
+# By default, only the port 443/tcp and OpenSSH is allowed
 ufw_config() {
     # Ufw before rules
     sudo sed -i -e '$ a #' \
@@ -89,6 +104,7 @@ ufw_config() {
     sudo ufw reload
 }
 
+# Enable the openvpn service on the server
 service_start() {
     sudo systemctl start openvpn@server
     sudo systemctl enable openvpn@server
