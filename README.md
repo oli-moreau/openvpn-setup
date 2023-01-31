@@ -6,11 +6,8 @@ It is based on [this excellent guide](https://www.digitalocean.com/community/tut
 
 ![Screenshot from 2023-01-29 19-53-07](https://user-images.githubusercontent.com/123499791/215366778-619d7ded-9644-46ca-8642-877fbe7fd0d7.png)
 
-## Notice
-
-The only intent of this script is to provide a quick way to have a VPN server up and running for *my personnal use case*, which is on a Debian 11 server and a Fedora 37 Workstation.
-
 ## Limitations
+The only intent of this script is to provide a quick way to have a VPN server up and running for *my personnal use case*, which is on a Debian 11 server and a Fedora 37 Workstation.
 - Not recommended due to security concerns with the server being its own CA (Certificate Authority).
 - The server side was only configured & tested on Debian 11 (Bullseye).
 - The client side was only configured & tested on Fedora 37 Workstation.
@@ -38,16 +35,25 @@ Default configuration file, with the following modifications:
 - Commented tls-auth ta.key
 - Added key-direction 1
 
+## Requirements
+- Debian 11 (Bullseye) server
+- Port 443 must not be used
+- Have a user with sudo privileges
 
 ## How to use
+Download the files
 ```bash
-# Download the files
-git clone https://github.com/oli-moreau/openvpn-setup.git
-# Change directory
-cd openvpn-setup/
-# Make the installation script executable
-chmod +x install.sh
-# Run the script
-./install.sh
-# If needed, logs are stored in the 'lib/log' directory
+$ git clone https://github.com/oli-moreau/openvpn-setup.git
+```
+Change directory
+```bash
+$ cd openvpn-setup/
+```
+Make the installation script executable
+```bash
+$ chmod +x install.sh
+```
+Run the script
+```bash
+$ ./install.sh
 ```
