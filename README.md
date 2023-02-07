@@ -41,19 +41,19 @@ Default configuration file, with the following modifications:
 - Have a user with sudo privileges
 
 ## How to use
-Download the files
+As a standard user, download the files
 ```bash
-$ git clone https://github.com/oli-moreau/openvpn-setup.git
+git clone https://github.com/oli-moreau/openvpn-setup.git
 ```
 Change directory
 ```bash
-$ cd openvpn-setup/
+cd openvpn-setup/
 ```
 Make the installation script executable
 ```bash
-$ chmod +x install.sh
+chmod +x install.sh
 ```
 Run the script
 ```bash
-$ ./install.sh
+./install.sh
 ```
